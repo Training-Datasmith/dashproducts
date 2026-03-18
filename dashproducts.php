@@ -101,7 +101,7 @@ class dashproducts extends Module
             ['title' => '', 'class' => 'text-right'],
         ];
 
-        $limit = (int) Configuration::get('DASHPRODUCT_NBR_SHOW_LAST_ORDER') ? (int) Configuration::get('DASHPRODUCT_NBR_SHOW_LAST_ORDER') : 10;
+        $limit = (int) Configuration::get('DASHPRODUCT_NBR_SHOW_LAST_ORDER') ?: 10;
         $orders = Order::getOrdersWithInformations($limit);
 
         $body = [];
@@ -550,7 +550,7 @@ class dashproducts extends Module
         $helper->table = $this->table;
         $lang = new Language((int) Configuration::get('PS_LANG_DEFAULT'));
         $helper->default_form_language = $lang->id;
-        $helper->allow_employee_form_lang = Configuration::get('PS_BO_ALLOW_EMPLOYEE_FORM_LANG') ? Configuration::get('PS_BO_ALLOW_EMPLOYEE_FORM_LANG') : 0;
+        $helper->allow_employee_form_lang = Configuration::get('PS_BO_ALLOW_EMPLOYEE_FORM_LANG') ?: 0;
         $helper->id = (int) Tools::getValue('id_carrier');
         $helper->identifier = $this->identifier;
         $helper->submit_action = 'submitDashConfig';
@@ -576,7 +576,6 @@ class dashproducts extends Module
     /**
      * Validate dashboard configuration
      *
-     * @param array $config
      *
      * @return array
      */
@@ -596,7 +595,6 @@ class dashproducts extends Module
     /**
      * Save dashboard configuration
      *
-     * @param array $config
      *
      * @return bool determines if there are errors or not
      */
