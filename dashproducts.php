@@ -407,7 +407,7 @@ class dashproducts extends Module
                 $tr = [];
                 $tr[] = [
                     'id' => 'product',
-                    'value' => $term['keywords'],
+                    'value' => Tools::htmlentitiesUTF8($term['keywords']),
                     'class' => 'text-left',
                 ];
                 $tr[] = [
