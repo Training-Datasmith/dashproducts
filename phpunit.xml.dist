@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit bootstrap="tests/bootstrap.php"
+         colors="true"
+         backupGlobals="false"
+         backupStaticAttributes="false">
+    <testsuites>
+        <testsuite name="DashproductsModule">
+            <file>tests/GuardTest.php</file>
+            <file>tests/DashproductsModuleTest.php</file>
+            <file>tests/Upgrade212Test.php</file>
+            <file>tests/DashproductsConfigTest.php</file>
+            <file>tests/DashproductsRecentOrdersTest.php</file>
+            <file>tests/DashproductsBestSellersTest.php</file>
+            <file>tests/DashproductsMostViewedTest.php</file>
+            <file>tests/DashproductsTopSearchTest.php</file>
+            <file>tests/DashproductsStatsQueriesTest.php</file>
+            <file>tests/DashproductsHooksTest.php</file>
+            <file>tests/DashboardTemplateContractTest.php</file>
+        </testsuite>
+    </testsuites>
+</phpunit>

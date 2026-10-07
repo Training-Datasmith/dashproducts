@@ -1,0 +1,16 @@
+FROM php:5.6.40-cli
+
+ENV COMPOSER_VERSION=2.2.24
+ENV COMPOSER_ALLOW_SUPERUSER=1
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends git unzip \
+    && rm -rf /var/lib/apt/lists/* \
+    && curl -fsSL https://getcomposer.org/download/${COMPOSER_VERSION}/composer.phar -o /usr/local/bin/composer \
+    && chmod +x /usr/local/bin/composer
+
+WORKDIR /app
+
+# Example (when Docker overlay works):
+#   docker build -f Dockerfile.tests -t dashproducts-php56-tests .
+#   docker run --rm -v "$PWD:/app" -w /app dashproducts-php56-tests ./scripts/run-phpunit.sh

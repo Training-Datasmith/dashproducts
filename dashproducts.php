@@ -122,9 +122,10 @@ class dashproducts extends Module
                 ) : $this->trans('Deleted customer', [], 'Admin.Global'),
                 'class' => 'text-left',
             ];
+            $orderDetails = OrderDetail::getList((int) $order['id_order']);
             $tr[] = [
                 'id' => 'total_products',
-                'value' => count(OrderDetail::getList((int) $order['id_order'])),
+                'value' => is_array($orderDetails) ? count($orderDetails) : 0,
                 'class' => 'text-center',
             ];
             $tr[] = [
@@ -132,7 +133,7 @@ class dashproducts extends Module
                 'value' => $this->context->getCurrentLocale()->formatPrice((float) $order['total_paid_tax_excl'], $currency['iso_code']),
                 'class' => 'text-center',
                 'wrapper_start' => $order['valid'] ? '<span class="badge badge-success">' : '',
-                'wrapper_end' => '<span>',
+                'wrapper_stop' => $order['valid'] ? '</span>' : '',
             ];
             $tr[] = [
                 'id' => 'date_add',
@@ -149,7 +150,7 @@ class dashproducts extends Module
                 'value' => '',
                 'class' => 'text-right',
                 'wrapper_start' => '<a class="btn btn-default" href="' . $this->context->link->getAdminLink('AdminOrders', true, [], ['id_order' => (int) $order['id_order'], 'vieworder' => 1]) . '" title="' . $this->trans('Details', [], 'Modules.Dashproducts.Admin') . '"><i class="icon-search"></i>',
-                'wrapper_end' => '</a>',
+                'wrapper_stop' => '</a>',
             ];
 
             $body[] = $tr;
@@ -216,63 +217,65 @@ class dashproducts extends Module
         );
 
         $body = [];
-        foreach ($products as $product) {
-            $product_obj = new Product((int) $product['product_id'], false, $this->context->language->id);
-            if (!Validate::isLoadedObject($product_obj)) {
-                continue;
-            }
+        if (is_array($products)) {
+            foreach ($products as $product) {
+                $product_obj = new Product((int) $product['product_id'], false, $this->context->language->id);
+                if (!Validate::isLoadedObject($product_obj)) {
+                    continue;
+                }
 
-            $productCategoryId = $product_obj->getDefaultCategory();
-            if (is_array($productCategoryId) && isset($productCategoryId['id_category_default'])) {
-                $productCategoryId = $productCategoryId['id_category_default'];
-            }
-            $category = new Category($productCategoryId, $this->context->language->id);
+                $productCategoryId = $product_obj->getDefaultCategory();
+                if (is_array($productCategoryId) && isset($productCategoryId['id_category_default'])) {
+                    $productCategoryId = $productCategoryId['id_category_default'];
+                }
+                $category = new Category($productCategoryId, $this->context->language->id);
 
-            $img = '';
-            if (($row_image = Product::getCover($product_obj->id)) && $row_image['id_image']) {
-                $image = new Image((int) $row_image['id_image']);
-                $path_to_image = (defined('_PS_PRODUCT_IMG_DIR_') ? _PS_PRODUCT_IMG_DIR_ : _PS_PROD_IMG_DIR_) . $image->getExistingImgPath() . '.' . $this->context->controller->imageType;
-                $img = ImageManager::thumbnail($path_to_image, 'product_mini_' . $row_image['id_image'] . '.' . $this->context->controller->imageType, 45, $this->context->controller->imageType);
-            }
+                $img = '';
+                if (($row_image = Product::getCover($product_obj->id)) && $row_image['id_image']) {
+                    $image = new Image((int) $row_image['id_image']);
+                    $path_to_image = (defined('_PS_PRODUCT_IMG_DIR_') ? _PS_PRODUCT_IMG_DIR_ : _PS_PROD_IMG_DIR_) . $image->getExistingImgPath() . '.' . $this->context->controller->imageType;
+                    $img = ImageManager::thumbnail($path_to_image, 'product_mini_' . $row_image['id_image'] . '.' . $this->context->controller->imageType, 45, $this->context->controller->imageType);
+                }
 
-            $productPrice = $product['price'];
-            if (isset($product['price_attribute']) && $product['price_attribute'] != '0.000000') {
-                $productPrice = $product['price_attribute'];
-            }
+                $productPrice = (float) $product['price'];
+                if (isset($product['price_attribute']) && $product['price_attribute'] != '0.000000') {
+                    $productPrice += (float) $product['price_attribute'];
+                }
 
-            $body[] = [
-                [
-                    'id' => 'product',
-                    'value' => $img,
-                    'class' => 'text-center',
-                ],
-                [
-                    'id' => 'product',
-                    'value' => '<a href="' . $this->context->link->getAdminLink('AdminProducts', true, ['id_product' => $product_obj->id, 'updateproduct' => 1]) . '">' . Tools::htmlentitiesUTF8($product['product_name']) . '</a>' . '<br/>' .
-            $this->context->getCurrentLocale()->formatPrice($productPrice, $this->context->currency->iso_code),
-                    'class' => 'text-center',
-                ],
-                [
-                    'id' => 'category',
-                    'value' => $category->name,
-                    'class' => 'text-center',
-                ],
-                [
-                    'id' => 'total_sold',
-                    'value' => $product['total'],
-                    'class' => 'text-center',
-                ],
-                [
-                    'id' => 'sales',
-                    'value' => $this->context->getCurrentLocale()->formatPrice($product['sales'], $this->context->currency->iso_code),
-                    'class' => 'text-center',
-                ],
-                [
-                    'id' => 'net_profit',
-                    'value' => $this->context->getCurrentLocale()->formatPrice(($product['sales'] - $product['expenses']), $this->context->currency->iso_code),
-                    'class' => 'text-center',
-                ],
-            ];
+                $body[] = [
+                    [
+                        'id' => 'product',
+                        'value' => $img,
+                        'class' => 'text-center',
+                    ],
+                    [
+                        'id' => 'product',
+                        'value' => '<a href="' . $this->context->link->getAdminLink('AdminProducts', true, ['id_product' => $product_obj->id, 'updateproduct' => 1]) . '">' . Tools::htmlentitiesUTF8($product['product_name']) . '</a>' . '<br/>' .
+                $this->context->getCurrentLocale()->formatPrice($productPrice, $this->context->currency->iso_code),
+                        'class' => 'text-center',
+                    ],
+                    [
+                        'id' => 'category',
+                        'value' => $category->name,
+                        'class' => 'text-center',
+                    ],
+                    [
+                        'id' => 'total_sold',
+                        'value' => $product['total'],
+                        'class' => 'text-center',
+                    ],
+                    [
+                        'id' => 'sales',
+                        'value' => $this->context->getCurrentLocale()->formatPrice($product['sales'], $this->context->currency->iso_code),
+                        'class' => 'text-center',
+                    ],
+                    [
+                        'id' => 'net_profit',
+                        'value' => $this->context->getCurrentLocale()->formatPrice(($product['sales'] - $product['expenses']), $this->context->currency->iso_code),
+                        'class' => 'text-center',
+                    ],
+                ];
+            }
         }
 
         return ['header' => $header, 'body' => $body];
@@ -405,7 +408,7 @@ class dashproducts extends Module
                 $tr = [];
                 $tr[] = [
                     'id' => 'product',
-                    'value' => $term['keywords'],
+                    'value' => Tools::htmlentitiesUTF8($term['keywords']),
                     'class' => 'text-left',
                 ];
                 $tr[] = [
@@ -433,9 +436,9 @@ class dashproducts extends Module
 				WHERE od.`product_id` = ' . (int) $id_product . '
 					' . Shop::addSqlRestriction(Shop::SHARE_ORDER, 'o') . '
 					AND o.valid = 1
-					AND o.`date_add` BETWEEN "' . pSQL($date_from) . '" AND "' . pSQL($date_to) . '"';
+					AND o.`date_add` BETWEEN "' . pSQL($date_from) . ' 00:00:00" AND "' . pSQL($date_to) . ' 23:59:59"';
 
-        return (int) Db::getInstance((bool) _PS_USE_SQL_SLAVE_)->getValue($sql);
+        return (float) Db::getInstance((bool) _PS_USE_SQL_SLAVE_)->getValue($sql);
     }
 
     public function getTotalProductAddedCart($date_from, $date_to, $id_product)
@@ -445,7 +448,7 @@ class dashproducts extends Module
 		FROM `' . _DB_PREFIX_ . 'cart_product` cp
 		WHERE cp.`id_product` = ' . (int) $id_product . '
 		' . Shop::addSqlRestriction(false, 'cp') . '
-		AND cp.`date_add` BETWEEN "' . pSQL($date_from) . '" AND "' . pSQL($date_to) . '"');
+		AND cp.`date_add` BETWEEN "' . pSQL($date_from) . ' 00:00:00" AND "' . pSQL($date_to) . ' 23:59:59"');
     }
 
     public function getTotalProductPurchased($date_from, $date_to, $id_product)
@@ -457,22 +460,23 @@ class dashproducts extends Module
 		WHERE od.`product_id` = ' . (int) $id_product . '
 		' . Shop::addSqlRestriction(false, 'od') . '
 		AND o.valid = 1
-		AND o.`date_add` BETWEEN "' . pSQL($date_from) . '" AND "' . pSQL($date_to) . '"');
+		AND o.`date_add` BETWEEN "' . pSQL($date_from) . ' 00:00:00" AND "' . pSQL($date_to) . ' 23:59:59"');
     }
 
     public function getTotalViewed($date_from, $date_to, $limit = 10)
     {
         return Db::getInstance((bool) _PS_USE_SQL_SLAVE_)->executeS('
-        SELECT p.id_object, pv.counter
+        SELECT p.id_object, SUM(pv.counter) AS counter
         FROM `' . _DB_PREFIX_ . 'page_viewed` pv
         LEFT JOIN `' . _DB_PREFIX_ . 'date_range` dr ON pv.`id_date_range` = dr.`id_date_range`
         LEFT JOIN `' . _DB_PREFIX_ . 'page` p ON pv.`id_page` = p.`id_page`
         LEFT JOIN `' . _DB_PREFIX_ . 'page_type` pt ON pt.`id_page_type` = p.`id_page_type`
         WHERE pt.`name` = \'product\'
         ' . Shop::addSqlRestriction(false, 'pv') . '
-        AND dr.`time_start` BETWEEN "' . pSQL($date_from) . '" AND "' . pSQL($date_to) . '"
-        AND dr.`time_end` BETWEEN "' . pSQL($date_from) . '" AND "' . pSQL($date_to) . ' 23:59:59"
-        ORDER BY pv.counter DESC
+        AND dr.`time_start` BETWEEN "' . pSQL($date_from) . ' 00:00:00" AND "' . pSQL($date_to) . ' 23:59:59"
+        AND dr.`time_end` BETWEEN "' . pSQL($date_from) . ' 00:00:00" AND "' . pSQL($date_to) . ' 23:59:59"
+        GROUP BY p.id_object
+        ORDER BY counter DESC
         LIMIT ' . (int) $limit);
     }
 
@@ -584,8 +588,15 @@ class dashproducts extends Module
     {
         $errors = [];
         $possibleValues = [5, 10, 20, 50];
+        $possibleStringValues = array('5', '10', '20', '50');
         foreach (array_keys($this->getConfigFieldsValues()) as $fieldName) {
-            if (!isset($config[$fieldName]) || !in_array($config[$fieldName], $possibleValues)) {
+            if (!isset($config[$fieldName])) {
+                $errors[$fieldName] = $this->trans('The %s field is invalid.', [$fieldName], 'Admin.Notifications.Error');
+                continue;
+            }
+            $value = $config[$fieldName];
+            $valid = in_array($value, $possibleValues, true) || in_array($value, $possibleStringValues, true);
+            if (!$valid) {
                 $errors[$fieldName] = $this->trans('The %s field is invalid.', [$fieldName], 'Admin.Notifications.Error');
             }
         }

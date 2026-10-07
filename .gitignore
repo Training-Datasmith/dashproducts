@@ -1,4 +1,6 @@
 /config_*
 /node_modules
 /vendor
+/vendor-phpunit
+/composer-2.2.24.phar
 /.php_cs.cache
