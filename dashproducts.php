@@ -587,16 +587,9 @@ class dashproducts extends Module
     public function validateDashConfig(array $config)
     {
         $errors = [];
-        $possibleValues = [5, 10, 20, 50];
-        $possibleStringValues = array('5', '10', '20', '50');
+        $possibleValues = [5, 10, 20, 50, '5', '10', '20', '50'];
         foreach (array_keys($this->getConfigFieldsValues()) as $fieldName) {
-            if (!isset($config[$fieldName])) {
-                $errors[$fieldName] = $this->trans('The %s field is invalid.', [$fieldName], 'Admin.Notifications.Error');
-                continue;
-            }
-            $value = $config[$fieldName];
-            $valid = in_array($value, $possibleValues, true) || in_array($value, $possibleStringValues, true);
-            if (!$valid) {
+            if (!isset($config[$fieldName]) || !in_array($config[$fieldName], $possibleValues, true)) {
                 $errors[$fieldName] = $this->trans('The %s field is invalid.', [$fieldName], 'Admin.Notifications.Error');
             }
         }

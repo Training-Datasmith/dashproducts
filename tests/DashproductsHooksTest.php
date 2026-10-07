@@ -51,7 +51,7 @@ class DashproductsHooksTest extends DashproductsTestCase
         $this->assertSame(10, $assigned['DASHPRODUCT_NBR_SHOW_LAST_ORDER']);
         $this->assertSame('DATE:2024-03-01', $assigned['date_from']);
         $this->assertSame('HELPER_FORM', $assigned['dashproducts_config_form']);
-        $this->assertContains('dashboard_zone_two.tpl', $html);
+        $this->assertSame('TPL:dashproducts.php:dashboard_zone_two.tpl', $html);
     }
 
     public function testZoneTwoOmitsFormWithoutPermission()

@@ -11,7 +11,7 @@ elif command -v php5.6 >/dev/null 2>&1; then
 elif command -v php >/dev/null 2>&1; then
   PHP_BIN="php"
 else
-  echo "No PHP binary found (set PHP_BIN). On hosts with Docker, use Dockerfile.tests when overlay storage works." >&2
+  echo "No PHP binary found (set PHP_BIN), or run the suite in Dockerfile.tests." >&2
   exit 1
 fi
 

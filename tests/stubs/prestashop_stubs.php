@@ -42,7 +42,6 @@ class TestState
     public static $shopRestrictionSql = ' AND o.id_shop IN (1) ';
     public static $shopRestrictionShareOrder = ' /*SHARE_ORDER*/ AND o.id_shop IN (1) ';
     public static $thumbnailResult = 'THUMB';
-    public static $displayTemplate = 'TPL:dashboard_zone_two.tpl';
     public static $adminLinks = array();
 
     public static function reset()
@@ -286,7 +285,7 @@ class Module
 
     public function display($file, $template)
     {
-        return TestState::$displayTemplate;
+        return 'TPL:' . basename($file) . ':' . $template;
     }
 
     public static function isInstalled($moduleName)

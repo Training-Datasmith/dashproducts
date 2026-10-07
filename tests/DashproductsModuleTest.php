@@ -21,6 +21,7 @@ class DashproductsModuleTest extends DashproductsTestCase
 
     public function testInstallWritesDefaultsAndRegistersHooks()
     {
+        TestState::$configuration = array();
         $this->assertTrue($this->module->install());
         $this->assertSame(10, Configuration::get('DASHPRODUCT_NBR_SHOW_LAST_ORDER'));
         $this->assertSame(10, Configuration::get('DASHPRODUCT_NBR_SHOW_BEST_SELLER'));

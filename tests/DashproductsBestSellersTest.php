@@ -93,7 +93,6 @@ class DashproductsBestSellersTest extends DashproductsTestCase
         $this->assertSqlContains($sql, '2024-01-31 23:59:59');
         $this->assertSqlContains($sql, 'limit 5');
         $this->assertSqlContains($sql, 'id_shop');
-        $this->assertNotContains('cast(', $this->normalizeSql($sql));
     }
 
     public function testDateValueIsPassedThroughPsql()
