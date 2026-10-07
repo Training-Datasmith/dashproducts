@@ -14,3 +14,4 @@ WORKDIR /app
 # Example (when Docker overlay works):
 #   docker build -f Dockerfile.tests -t dashproducts-php56-tests .
 #   docker run --rm -v "$PWD:/app" -w /app dashproducts-php56-tests ./scripts/run-phpunit.sh
+# run-phpunit.sh uses `php` when php5.6 is not on PATH (this image provides `php` only).

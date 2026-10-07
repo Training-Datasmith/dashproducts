@@ -2,11 +2,16 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-PHP_BIN="${PHP_BIN:-php5.6}"
 COMPOSER_PHAR="${COMPOSER_PHAR:-${ROOT}/composer-2.2.24.phar}"
 
-if ! command -v "${PHP_BIN}" >/dev/null 2>&1; then
-  echo "PHP 5.6 binary not found (set PHP_BIN). On hosts with Docker, use Dockerfile.tests when overlay storage works." >&2
+if [[ -n "${PHP_BIN:-}" ]]; then
+  :
+elif command -v php5.6 >/dev/null 2>&1; then
+  PHP_BIN="php5.6"
+elif command -v php >/dev/null 2>&1; then
+  PHP_BIN="php"
+else
+  echo "No PHP binary found (set PHP_BIN). On hosts with Docker, use Dockerfile.tests when overlay storage works." >&2
   exit 1
 fi
 
